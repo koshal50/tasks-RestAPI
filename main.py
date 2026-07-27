@@ -67,3 +67,41 @@ def create_task(task: TaskCreate):
     tasks.append(new_task)
 
     return new_task
+
+
+# Stage 4 - Update
+@app.put("/tasks/{task_id}")
+def update_task(task_id: int, updated_task: TaskCreate):
+
+    for task in tasks:
+        if task["id"] == task_id:
+
+            if not updated_task.title.strip():
+                raise HTTPException(
+                    status_code=400,
+                    detail="Title cannot be empty"
+                )
+
+            task["title"] = updated_task.title
+
+            return task
+
+    return JSONResponse(
+        status_code=404,
+        content={"error": f"Task {task_id} not found"},
+    )
+
+
+# Stage 4 - Delete
+@app.delete("/tasks/{task_id}", status_code=204)
+def delete_task(task_id: int):
+
+    for task in tasks:
+        if task["id"] == task_id:
+            tasks.remove(task)
+            return
+
+    return JSONResponse(
+        status_code=404,
+        content={"error": f"Task {task_id} not found"},
+    )
