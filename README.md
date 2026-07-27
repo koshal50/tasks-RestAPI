@@ -85,7 +85,7 @@ From Swagger UI, you can use **Try it out** to create, read, update, and delete 
 ### Swagger Screenshot
 
 ```markdown
-![Swagger UI](screenshots/swagger_ui.png)
+![Swagger UI](screenshots/swaager_ui.png)
 ```
 The screenshot should show the available endpoints and the **Try it out** buttons.
 
