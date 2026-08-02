@@ -1,7 +1,7 @@
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 from fastapi.responses import JSONResponse
-from database import initialize_database
+from database import initialize_database,get_all_tasks,get_task_by_id
 from contextlib import asynccontextmanager
 
 
@@ -43,7 +43,7 @@ def health():
 @app.get("/tasks")
 def get_tasks(done: bool | None = None, search: str | None = None):
 
-    result = tasks
+    result = get_all_tasks()
 
     if done is not None:
         result = [
