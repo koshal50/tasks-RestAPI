@@ -1,9 +1,19 @@
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 from fastapi.responses import JSONResponse
+from database import initialize_database
+from contextlib import asynccontextmanager
 
-app = FastAPI()
 
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    print("Initializing Database...")
+    initialize_database()
+    print("Database Ready!")
+    yield
+
+
+app = FastAPI(lifespan=lifespan)
 class TaskCreate(BaseModel):
     title: str
 
