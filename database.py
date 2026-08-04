@@ -94,3 +94,27 @@ def get_task_by_id(task_id):
         "title": row[1],
         "done": bool(row[2])
     }
+
+def create_task(title):
+    connection = get_connection()
+    cursor = connection.cursor()
+
+    cursor.execute(
+        """
+        INSERT INTO tasks (title, done)
+        VALUES (?, ?)
+        """,
+        (title, 0)
+    )
+
+    connection.commit()
+
+    task_id = cursor.lastrowid
+
+    connection.close()
+
+    return {
+        "id": task_id,
+        "title": title,
+        "done": False
+    }

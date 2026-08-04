@@ -1,7 +1,7 @@
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 from fastapi.responses import JSONResponse
-from database import initialize_database,get_all_tasks,get_task_by_id
+from database import initialize_database,get_all_tasks,get_task_by_id,create_task
 from contextlib import asynccontextmanager
 
 
@@ -63,18 +63,18 @@ def get_tasks(done: bool | None = None, search: str | None = None):
 @app.get("/tasks/{task_id}", response_model=None)
 def get_task(task_id: int):
 
-    for task in tasks:
-        if task["id"] == task_id:
-            return task
+    task = get_task_by_id(task_id)
+
+    if task:
+        return task
 
     return JSONResponse(
         status_code=404,
         content={"error": f"Task {task_id} not found"},
     )
 
-
 @app.post("/tasks", status_code=201)
-def create_task(task: TaskCreate):
+def create_new_task(task: TaskCreate):
 
     if not task.title.strip():
         raise HTTPException(
@@ -82,22 +82,7 @@ def create_task(task: TaskCreate):
             detail="Title cannot be empty"
         )
 
-    new_id = max(
-        [task["id"] for task in tasks],
-        default=0
-    ) + 1
-
-    new_task = {
-        "id": new_id,
-        "title": task.title,
-        "done": False
-    }
-
-    tasks.append(new_task)
-
-    return new_task
-
-
+    return create_task(task.title)
 @app.put("/tasks/{task_id}")
 def update_task(task_id: int, updated_task: TaskCreate):
 
