@@ -1,7 +1,7 @@
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 from fastapi.responses import JSONResponse
-from database import initialize_database,get_all_tasks,get_task_by_id,create_task
+from database import initialize_database,get_all_tasks,get_task_by_id,create_task,update_task,delete_task
 from contextlib import asynccontextmanager
 
 
@@ -83,22 +83,20 @@ def create_new_task(task: TaskCreate):
         )
 
     return create_task(task.title)
+
 @app.put("/tasks/{task_id}")
-def update_task(task_id: int, updated_task: TaskCreate):
+def update_existing_task(task_id: int, updated_task: TaskCreate):
 
-    for task in tasks:
+    if not updated_task.title.strip():
+        raise HTTPException(
+            status_code=400,
+            detail="Title cannot be empty"
+        )
 
-        if task["id"] == task_id:
+    task = update_task(task_id, updated_task.title)
 
-            if not updated_task.title.strip():
-                raise HTTPException(
-                    status_code=400,
-                    detail="Title cannot be empty"
-                )
-
-            task["title"] = updated_task.title
-
-            return task
+    if task:
+        return task
 
     return JSONResponse(
         status_code=404,
@@ -107,13 +105,12 @@ def update_task(task_id: int, updated_task: TaskCreate):
 
 
 @app.delete("/tasks/{task_id}", status_code=204)
-def delete_task(task_id: int):
+def delete_existing_task(task_id: int):
 
-    for task in tasks:
+    deleted = delete_task(task_id)
 
-        if task["id"] == task_id:
-            tasks.remove(task)
-            return
+    if deleted:
+        return
 
     return JSONResponse(
         status_code=404,

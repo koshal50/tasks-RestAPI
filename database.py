@@ -118,3 +118,61 @@ def create_task(title):
         "title": title,
         "done": False
     }
+
+def update_task(task_id, title):
+    connection = get_connection()
+    cursor = connection.cursor()
+
+    cursor.execute(
+        """
+        UPDATE tasks
+        SET title = ?
+        WHERE id = ?
+        """,
+        (title, task_id)
+    )
+
+    connection.commit()
+
+    if cursor.rowcount == 0:
+        connection.close()
+        return None
+
+    cursor.execute(
+        """
+        SELECT id, title, done
+        FROM tasks
+        WHERE id = ?
+        """,
+        (task_id,)
+    )
+
+    row = cursor.fetchone()
+
+    connection.close()
+
+    return {
+        "id": row[0],
+        "title": row[1],
+        "done": bool(row[2])
+    }
+
+def delete_task(task_id):
+    connection = get_connection()
+    cursor = connection.cursor()
+
+    cursor.execute(
+        """
+        DELETE FROM tasks
+        WHERE id = ?
+        """,
+        (task_id,)
+    )
+
+    connection.commit()
+
+    deleted = cursor.rowcount > 0
+
+    connection.close()
+
+    return deleted
