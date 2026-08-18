@@ -4,3 +4,4 @@
 
 #sqlite db
 tasks.db
+*.pyc
