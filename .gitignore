@@ -5,3 +5,5 @@
 #sqlite db
 tasks.db
 *.pyc
+.env
+!.env.example
