@@ -124,35 +124,25 @@ def create_task(title):
         "title": title,
         "done": False
     }
-
-
-def update_task(task_id, title):
+def update_task(task_id, title, done):
     connection = get_connection()
 
     with connection.cursor() as cursor:
         cursor.execute(
             """
             UPDATE tasks
-            SET title = %s
+            SET title = %s, done = %s
             WHERE id = %s
+            RETURNING id, title, done
             """,
-            (title, task_id)
-        )
-
-        if cursor.rowcount == 0:
-            connection.close()
-            return None
-
-        cursor.execute(
-            """
-            SELECT id, title, done
-            FROM tasks
-            WHERE id = %s
-            """,
-            (task_id,)
+            (title, done, task_id)
         )
 
         row = cursor.fetchone()
+
+    if row is None:
+        connection.close()
+        return None
 
     connection.commit()
     connection.close()
@@ -162,7 +152,6 @@ def update_task(task_id, title):
         "title": row[1],
         "done": row[2]
     }
-
 
 def delete_task(task_id):
     connection = get_connection()

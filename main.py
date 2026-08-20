@@ -15,7 +15,13 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(lifespan=lifespan)
 class TaskCreate(BaseModel):
+    title: str  
+class TaskUpdate(BaseModel):
     title: str
+    done: bool
+
+
+
 
 initial_tasks = [
     {"id": 1, "title": "Learn FastAPI", "done": False},
@@ -85,7 +91,7 @@ def create_new_task(task: TaskCreate):
     return create_task(task.title)
 
 @app.put("/tasks/{task_id}")
-def update_existing_task(task_id: int, updated_task: TaskCreate):
+def update_existing_task(task_id: int, updated_task: TaskUpdate):
 
     if not updated_task.title.strip():
         raise HTTPException(
@@ -93,14 +99,18 @@ def update_existing_task(task_id: int, updated_task: TaskCreate):
             detail="Title cannot be empty"
         )
 
-    task = update_task(task_id, updated_task.title)
+    task = update_task(
+        task_id,
+        updated_task.title,
+        updated_task.done
+    )
 
     if task:
         return task
 
     return JSONResponse(
         status_code=404,
-        content={"error": f"Task {task_id} not found"},
+        content={"error": "Task not found"},
     )
 
 
@@ -109,13 +119,13 @@ def delete_existing_task(task_id: int):
 
     deleted = delete_task(task_id)
 
-    if deleted:
-        return
+    if not deleted:
+        return JSONResponse(
+            status_code=404,
+            content={"error": "Task not found"},
+        )
 
-    return JSONResponse(
-        status_code=404,
-        content={"error": f"Task {task_id} not found"},
-    )
+    return None
 
 
 @app.post("/reset")
