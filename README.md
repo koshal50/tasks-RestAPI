@@ -53,7 +53,7 @@ The database configuration is provided through the `DATABASE_URL` environment va
 Example:
 
 ```env
-DATABASE_URL=postgres://postgres:dev@db:5432/tasks
+DATABASE_URL=postgres://postgres:your_password@host_name:5432/tasks
 ```
 
 The important parts are:
@@ -61,7 +61,7 @@ The important parts are:
 ```text
 Database: tasks
 User:     postgres
-Host:     db
+Host:    host_name
 Port:     5432
 ```
 
